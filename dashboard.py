@@ -16,14 +16,24 @@ st.title(" :bar_chart: Acepoints Superstore Dashboard")
 st.markdown('<style>div.block-container{padding-top:2rem;}</style>',unsafe_allow_html=True) 
 
 # Upload and Load the dataset
-fl = st.file_uploader(":file_folder: Upload a file",type=(["csv","txt","xlsx","xls"]))
+fl = st.file_uploader(":file_folder: Upload a file", type=["csv", "txt", "xlsx", "xls"])
+
 if fl is not None:
-    filename = fl.name
-    st.write(filename)
-    df = pd.read_csv(filename, encoding = "ISO-8859-1")
+    try:
+        df = pd.read_csv(fl, encoding="ISO-8859-1")
+        st.success("File uploaded successfully!")
+    except Exception as e:
+        st.error(f"Error reading file: {e}")
+        st.stop()
 else:
-    os.chdir(r"C:\Users\USER\Desktop\Simple dashboard")
-    df = pd.read_csv("Superstore.csv", encoding = "ISO-8859-1")
+    # Use a bundled fallback CSV
+    try:
+        df = pd.read_csv("Superstore.csv", encoding="ISO-8859-1")
+        st.info("Using default Superstore.csv from project directory.")
+    except FileNotFoundError:
+        st.error("No file uploaded and default 'Superstore.csv' not found in the repo.")
+        st.stop()
+
 
 
 col1, col2 = st.columns((2))  #columns for our page layout
@@ -204,4 +214,5 @@ with st.expander("View Data"):
 csv = filtered_df.to_csv(index=False).encode("utf-8")
 st.download_button('Download Data', data=csv, file_name='Data.csv', mime='text/csv',
                         help='Click here to download the data as a CSV file')
+
 
